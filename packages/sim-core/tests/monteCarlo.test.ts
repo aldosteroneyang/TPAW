@@ -9,6 +9,8 @@ describe('runMonteCarlo', () => {
     expect(result.successRate).toBeLessThanOrEqual(1);
     expect(result.endingAssets).toHaveLength(50);
     expect(result.sampledPath.length).toBeGreaterThan(0);
+    expect(result.yearlyEndingAssets).toHaveLength(50);
+    expect(result.bankruptcyTimeline.length).toBe(defaultSimulationInput.terminalAge - defaultSimulationInput.currentAge);
   });
 });
 

@@ -14,11 +14,14 @@ function clamp(value: number, min: number, max: number): number {
 export function runMonteCarlo(input: SimulationInput): MonteCarloResult {
   const years = input.terminalAge - input.currentAge;
   const endingAssets: number[] = [];
+  const yearlyEndingAssets: number[][] = [];
+  const bankruptciesByYear = Array.from({ length: years }, () => 0);
   let successCount = 0;
   let sampledPath: SimulationPath[] = [];
 
   for (let i = 0; i < input.iterations; i += 1) {
     let assets = input.initialAssets;
+    let bankruptYear = -1;
     const path: SimulationPath[] = [];
 
     for (let year = 0; year < years; year += 1) {
@@ -51,13 +54,18 @@ export function runMonteCarlo(input: SimulationInput): MonteCarloResult {
       });
 
       if (assets <= 0) {
+        bankruptYear = year;
         break;
       }
     }
 
     endingAssets.push(assets);
+    yearlyEndingAssets.push(path.map((point) => point.endingAssets));
+
     if (assets > 0) {
       successCount += 1;
+    } else if (bankruptYear >= 0) {
+      bankruptciesByYear[bankruptYear] += 1;
     }
 
     if (i === 0) {
@@ -65,10 +73,22 @@ export function runMonteCarlo(input: SimulationInput): MonteCarloResult {
     }
   }
 
+  let cumulative = 0;
+  const bankruptcyTimeline = bankruptciesByYear.map((count, year) => {
+    cumulative += count;
+    return {
+      year,
+      age: input.currentAge + year,
+      bankruptcyProbability: cumulative / input.iterations
+    };
+  });
+
   return {
     successRate: successCount / input.iterations,
     endingAssets,
-    sampledPath
+    sampledPath,
+    yearlyEndingAssets,
+    bankruptcyTimeline
   };
 }
 
