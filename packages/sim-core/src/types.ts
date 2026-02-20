@@ -23,10 +23,18 @@ export interface SimulationPath {
   endingAssets: number;
 }
 
+export interface YearlySuccessPoint {
+  year: number;
+  age: number;
+  bankruptcyProbability: number;
+}
+
 export interface MonteCarloResult {
   successRate: number;
   endingAssets: number[];
   sampledPath: SimulationPath[];
+  yearlyEndingAssets: number[][];
+  bankruptcyTimeline: YearlySuccessPoint[];
 }
 
 export interface SensitivityPoint {
